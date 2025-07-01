@@ -3,13 +3,13 @@
 # -----------------------------
 FROM node:22.12.0-alpine AS builder
 
-# Set working directory
+# set working directory
 WORKDIR /app
 
 # Copy only package info for installing dependencies first (cached)
 COPY package*.json ./
 
-# Install ALL dependencies including devDependencies
+# Install all dependencies (including cross-env from devDependencies)
 RUN npm install
 
 # Copy full source code into container
@@ -18,31 +18,37 @@ COPY . .
 # Build the Next.js production bundle
 RUN npm run build
 
+
 # -----------------------------
-# Stage 2: Runner
+# Stage 2: Runner (Production)
 # -----------------------------
 FROM node:22.12.0-alpine AS runner
 
 WORKDIR /app
 
-# Copy only package.json (again) for production install
 COPY package*.json ./
 
-# Install only production dependencies to reduce image size
+# Install only production dependencies
 RUN npm install --production
 
-# Copy built Next.js output from builder stage
+# -----------------------------
+# ✅ Manually copy `cross-env` binary from builder stage
+# because it's a devDependency (not installed in production)
+# -----------------------------
+COPY --from=builder /app/node_modules/.bin/cross-env /usr/local/bin/cross-env
+
+# Copy built app and necessary files
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
-# Use environment variable for the port
+# Set internal container port using .env (e.g., CONTAINER_PORT=7004)
 ENV PORT=${CONTAINER_PORT}
 
-# Expose internal port defined in .env (e.g., 7004 inside container)
+# Expose internal container port
 EXPOSE ${CONTAINER_PORT}
 
-# Start app using internal port
+# Start app using port from .env (e.g., 7004 inside container)
 CMD ["npm", "start"]
