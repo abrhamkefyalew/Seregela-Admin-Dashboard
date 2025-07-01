@@ -32,7 +32,7 @@ COPY package*.json ./
 RUN npm install --production
 
 # -----------------------------
-# ✅ Manually copy `cross-env` binary from builder stage
+# Manually copy `cross-env` binary from builder stage
 # because it's a devDependency (not installed in production)
 # -----------------------------
 COPY --from=builder /app/node_modules/.bin/cross-env /usr/local/bin/cross-env
@@ -50,5 +50,15 @@ ENV PORT=${CONTAINER_PORT}
 # Expose internal container port
 EXPOSE ${CONTAINER_PORT}
 
-# Start app using port from .env (e.g., 7004 inside container)
-CMD ["npm", "start"]
+# # Start app using port from .env (e.g., 7004 inside container)
+# CMD ["npm", "start"]
+#
+#
+# Set internal container port using .env (e.g., CONTAINER_PORT=7004)
+ENV PORT=${CONTAINER_PORT}
+
+# Expose internal port
+EXPOSE ${CONTAINER_PORT}
+
+# Replace cross-env with inline env vars
+CMD PORT=$PORT next start -p $PORT
