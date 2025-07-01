@@ -1,103 +1,390 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import Card from '@/components/Card';
+import { metrics } from '@/data/metrics';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  Legend
+} from 'recharts';
+
+
+const iconMap: Record<string, React.ReactNode> = {
+  'Total Revenue': '💲',
+  'Active Users': '👥',
+  'Conversion Rate': '🎯',
+  'Orders': '🛒',
+  'Page Views': '🌐',
+  'Performance Score': '⚡',
+};
+
+const tabList = [
+  { label: 'Overview', icon: '📈' },
+  { label: 'Performance', icon: '🚀' },
+  { label: 'Team', icon: '👥' },
+  { label: 'Goals', icon: '🎯' },
+  { label: 'Alerts', icon: '⚠️' },
+];
+
+// Memoize the data to prevent re-renders
+const revenueData = [
+  { month: 'Jan', value: 180000 },
+  { month: 'Feb', value: 190000 },
+  { month: 'Mar', value: 200000 },
+  { month: 'Apr', value: 215000 },
+  { month: 'May', value: 230000 },
+  { month: 'Jun', value: 240000 },
+  { month: 'July', value: 244300 },
+  { month: 'Aug', value: 249900 },
+  { month: 'Sep', value: 240110 },
+  { month: 'Oct', value: 240055 },
+  { month: 'Nov', value: 210000 },
+  { month: 'Dec', value: 340000 },
+];
+
+const trafficData = [
+  { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
+  { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
+  { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 },
+];
+
+interface ConversionDataItem {
+  name: string;
+  value: number;
+}
+
+interface WeeklyPerformanceDataItem {
+  day: string;
+  IOS: number;
+  Android: number;
+  Web: number;
+}
+
+const conversionData: ConversionDataItem[] = [
+  { name: 'Converted', value: 68 },
+  { name: 'Abandoned Cart', value: 22 },
+  { name: 'Bounced', value: 10 }
+];
+
+const weeklyPerformanceData: WeeklyPerformanceDataItem[] = [
+  { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
+  { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
+  { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
+  { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 }
+];
+
+const COLORS = ['#0088FE', '#FFBB28', '#FF8042'];
+const platformColors = {
+  IOS: '#FF6384',
+  Android: '#36A2EB',
+  Web: '#FFCE56'
+};
+
+// Create a separate component for the time display
+const TimeDisplay = () => {
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleTimeString());
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return <div className="text-gray-600 text-sm">🕒 {currentTime}</div>;
+};
+
+// New approach for chart components
+const ChartWrapper = ({ children, chartKey }: { children: React.ReactNode, chartKey: string }) => {
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    // This ensures animations only run on first mount
+    initializedRef.current = true;
+  }, []);
+
+  return (
+    <div 
+      key={chartKey}
+      className="w-full h-64"
+    >
+      {children}
+    </div>
+  );
+};
+
+// Simplified chart components without animation control
+const RevenueChart = () => (
+  <ResponsiveContainer width="100%" height="100%">
+    <LineChart data={revenueData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="month" />
+      <YAxis />
+      <Tooltip />
+      <Line 
+        type="monotone" 
+        dataKey="value" 
+        stroke="#3b82f6" 
+        dot 
+        animationDuration={1500}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+);
+
+const TrafficChart = () => (
+  <ResponsiveContainer width="100%" height="100%">
+    <AreaChart data={trafficData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="day" />
+      <YAxis />
+      <Tooltip />
+      <Area 
+        type="monotone" 
+        dataKey="IOS" 
+        stackId="1" 
+        stroke="#f97316" 
+        fill="#fcd34d" 
+        animationDuration={1500}
+      />
+      <Area 
+        type="monotone" 
+        dataKey="Android" 
+        stackId="1" 
+        stroke="#10b981" 
+        fill="#6ee7b7" 
+        animationDuration={1500}
+      />
+      <Area 
+        type="monotone" 
+        dataKey="Web" 
+        stackId="1" 
+        stroke="#3b82f6" 
+        fill="#93c5fd" 
+        animationDuration={1500}
+      />
+    </AreaChart>
+  </ResponsiveContainer>
+);
+
+const ConversionChart = () => (
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>
+      <Pie
+        data={conversionData}
+        cx="50%"
+        cy="50%"
+        innerRadius={40}
+        outerRadius={80}
+        paddingAngle={2}
+        dataKey="value"
+        label={false}
+        animationDuration={1000}
+        animationBegin={0}
+        animationEasing="ease-out"
+      >
+        {conversionData.map((entry, index) => (
+          <Cell 
+            key={`cell-${index}`} 
+            fill={COLORS[index % COLORS.length]} 
+            stroke="#fff"
+            strokeWidth={2}
+          />
+        ))}
+      </Pie>
+      <Tooltip 
+        formatter={(value) => [`${value}%`, 'Percentage']}
+        contentStyle={{
+          borderRadius: '8px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}
+      />
+    </PieChart>
+  </ResponsiveContainer>
+);
+
+const PerformanceChart = () => (
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart
+      data={weeklyPerformanceData}
+      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="day" />
+      <YAxis />
+      <Tooltip />
+      <Legend />
+      <Bar 
+        dataKey="IOS" 
+        fill={platformColors.IOS} 
+        name="iOS" 
+        animationDuration={1500}
+      />
+      <Bar 
+        dataKey="Android" 
+        fill={platformColors.Android} 
+        name="Android" 
+        animationDuration={1500}
+      />
+      <Bar 
+        dataKey="Web" 
+        fill={platformColors.Web} 
+        name="Web" 
+        animationDuration={1500}
+      />
+    </BarChart>
+  </ResponsiveContainer>
+);
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [activeTab, setActiveTab] = useState('Overview');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <main className="min-h-screen bg-white flex justify-center p-4">
+      <div className="w-full max-w-[95vw] bg-[#EEF7FF] rounded-3xl">
+        {/* Header */}
+        <header className="w-full bg-white p-6 shadow-sm flex justify-between items-center flex-wrap gap-4 rounded-t-3xl">
+          <h1 className="text-2xl font-bold text-black">
+            Seregela Performance Hub{' '}
+            <span className="bg-green-500 text-white px-2 py-1 rounded text-sm ml-2">Live</span>
+          </h1>
+          <div className="flex items-center gap-4">
+            <TimeDisplay />
+            <button className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow">
+              Export Report
+            </button>
+          </div>
+        </header>
+
+        <div className="p-6 rounded-b-3xl">
+          <section className="mb-4 max-w-full">
+            <h2 className="text-xl font-semibold text-black">Performance Management Dashboard</h2>
+            <p className="text-gray-600">
+              Monitor, analyze, and optimize your business performance with real-time insights
+            </p>
+          </section>
+
+          {/* Metrics grid */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-6">
+            {metrics.map((metric, i) => (
+              <div
+                key={i}
+                className="
+                  rounded-xl
+                  transform
+                  transition-transform duration-300
+                  shadow-lg
+                  hover:shadow-xl
+                  hover:scale-[1.03]
+                "
+              >
+                <Card {...metric} icon={iconMap[metric.label] || ''} />
+              </div>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <div className="flex mt-10 w-full bg-gray-100 rounded-lg p-0.5">
+            {tabList.map((tab, index) => (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.label)}
+                className={`
+                  flex items-center gap-2 justify-center
+                  px-4 py-1.5
+                  flex-1
+                  transition-all
+                  duration-200
+                  ${activeTab === tab.label 
+                    ? 'bg-white text-black shadow-sm hover:translate-y-[-1px]' 
+                    : 'text-gray-600 hover:bg-gray-50'
+                  }
+                  ${index !== tabList.length - 1 ? 'border-r border-gray-200' : ''}
+                  rounded-[6px]
+                `}
+              >
+                <span className="text-gray-400 text-sm">{tab.icon}</span>
+                <span className="font-medium text-sm">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Charts */}
+          {activeTab === 'Overview' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+              <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Revenue vs Target</h3>
+                <ChartWrapper chartKey="revenue">
+                  <RevenueChart />
+                </ChartWrapper>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Traffic Sources</h3>
+                <ChartWrapper chartKey="traffic">
+                  <TrafficChart />
+                </ChartWrapper>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'Performance' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+              <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Conversion Analysis</h3>
+                <div className="w-full h-64 flex flex-col items-center">
+                  <ChartWrapper chartKey="conversion">
+                    <ConversionChart />
+                  </ChartWrapper>
+                  <div className="w-full flex justify-center mt-2">
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {conversionData.map((item, index) => (
+                        <div key={`legend-${index}`} className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2" 
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          <span className="text-xs text-gray-600">
+                            {`${item.name}: ${item.value}%`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Weekly Performance by Platform</h3>
+                <ChartWrapper chartKey="performance">
+                  <PerformanceChart />
+                </ChartWrapper>
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }
