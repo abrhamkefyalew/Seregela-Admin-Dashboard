@@ -33,6 +33,10 @@ COPY package*.json ./
 RUN npm install --production
 
 # Copy built Next.js output and other necessary files from builder
+
+# Copy cross-env binary from builder stage
+COPY --from=builder /app/node_modules/.bin/cross-env /usr/local/bin/cross-env
+
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
