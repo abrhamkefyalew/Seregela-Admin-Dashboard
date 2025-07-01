@@ -3,8 +3,18 @@ version: "3.9"
 services:
   seregela-dashboard:
     build: .
+    
+    # Map host's HOST_PORT to container's CONTAINER_PORT using .env
     ports:
-      - "7005:7004"
-    environment:
-      NODE_ENV: production
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+
+    # Use the .env file to pass environment vars into container
+    env_file:
+      - .env
+
+    # Restart container automatically unless stopped manually
     restart: unless-stopped
+
+    # Mount source code to container to allow live code editing
+    volumes:
+      - .:/app
