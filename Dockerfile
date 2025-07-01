@@ -3,51 +3,41 @@
 # -----------------------------
 FROM node:22.12.0-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy only package info for installing dependencies first (cached)
 COPY package*.json ./
 
-# Install ALL dependencies including devDependencies (to get cross-env etc)
+# Install all dependencies including devDependencies (for cross-env etc)
 RUN npm install
 
-# Copy full source code into container
 COPY . .
 
-# Build the Next.js production bundle
 RUN npm run build
 
-
 # -----------------------------
-# Stage 2: Runner
+# Stage 2: Runner (Production)
 # -----------------------------
 FROM node:22.12.0-alpine AS runner
 
 WORKDIR /app
 
-# Copy only package.json for production dependencies install
 COPY package*.json ./
 
-# Install only production dependencies (smaller image)
+# Install production dependencies only (smaller image)
 RUN npm install --production
 
-# Copy built Next.js output and other necessary files from builder
-
-# Copy cross-env binary from builder stage
-COPY --from=builder /app/node_modules/.bin/cross-env /usr/local/bin/cross-env
-
+# Copy built app and necessary files from builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
-# Set internal container port from .env (CONTAINER_PORT)
+# Set environment variable PORT from .env (CONTAINER_PORT)
 ENV PORT=${CONTAINER_PORT}
 
-# Expose the container's internal port
+# Expose internal container port
 EXPOSE ${CONTAINER_PORT}
 
-# Run app with npm start (which uses cross-env and $PORT from env)
+# Start the app (no cross-env, PORT is already set)
 CMD ["npm", "start"]
