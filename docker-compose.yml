@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  seregela-dashboard:
+    build: .
+    ports:
+      - "7005:7004"
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
