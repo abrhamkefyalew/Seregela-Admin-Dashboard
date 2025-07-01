@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env PORT=$PORT next dev",
-    "build": "next build",
     "start": "next start -p $PORT",
+    "build": "next build",
     "lint": "next lint"
   },
   "dependencies": {
