@@ -18,3 +18,5 @@ services:
     # Mount source code to container to allow live code editing
     volumes:
       - .:/app
+      - /app/node_modules   #     # Only use volume mount in dev — if so, exclude node_modules to avoid overwriting
+
