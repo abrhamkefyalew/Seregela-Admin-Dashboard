@@ -7,34 +7,30 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
+
 COPY . .
 RUN npm run build
 
-
 # -----------------------------
-# Stage 2: Runner
+# Stage 2: Runner (production)
 # -----------------------------
 FROM node:22.12.0-alpine AS runner
 
 WORKDIR /app
 
-# Only needed for metadata
 COPY package*.json ./
 
-# Copy minimal files for production
+# ❌ Don't use --production
+# ✅ Install all to include Next.js in runtime
+RUN npm install
+
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
-#  Add next binary
-COPY --from=builder /app/node_modules/.bin/next /usr/local/bin/next
-
-#  Set container port via env
 ENV PORT=${CONTAINER_PORT}
-
 EXPOSE ${CONTAINER_PORT}
 
-#  No cross-env, just use env
 CMD ["next", "start", "-p", "$PORT"]
