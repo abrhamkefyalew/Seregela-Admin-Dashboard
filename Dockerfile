@@ -27,4 +27,5 @@ ENV PORT=${CONTAINER_PORT}
 EXPOSE ${CONTAINER_PORT}
 
 # Use npx to reliably call Next.js from node_modules
-CMD ["npx", "next", "start", "-p", "$PORT"]
+CMD ["sh", "-c", "npx next start -p $PORT"]
+
