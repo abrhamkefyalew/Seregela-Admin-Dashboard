@@ -48,30 +48,30 @@ const tabList = [
 ];
 
 // Memoize the data to prevent re-renders
-const revenueData = [
-  { month: 'Jan', value: 180000 },
-  { month: 'Feb', value: 190000 },
-  { month: 'Mar', value: 200000 },
-  { month: 'Apr', value: 215000 },
-  { month: 'May', value: 230000 },
-  { month: 'Jun', value: 240000 },
-  { month: 'July', value: 244300 },
-  { month: 'Aug', value: 249900 },
-  { month: 'Sep', value: 240110 },
-  { month: 'Oct', value: 240055 },
-  { month: 'Nov', value: 210000 },
-  { month: 'Dec', value: 340000 },
-];
+// const revenueData = [
+//   { month: 'Jan', value: 180000 },
+//   { month: 'Feb', value: 190000 },
+//   { month: 'Mar', value: 200000 },
+//   { month: 'Apr', value: 215000 },
+//   { month: 'May', value: 230000 },
+//   { month: 'Jun', value: 240000 },
+//   { month: 'July', value: 244300 },
+//   { month: 'Aug', value: 249900 },
+//   { month: 'Sep', value: 240110 },
+//   { month: 'Oct', value: 240055 },
+//   { month: 'Nov', value: 210000 },
+//   { month: 'Dec', value: 340000 },
+// ];
 
-const trafficData = [
-  { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
-  { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
-  { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 },
-];
+// const trafficData = [
+//   { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
+//   { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
+//   { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 },
+// ];
 
 interface ConversionDataItem {
   name: string;
@@ -91,15 +91,15 @@ const conversionData: ConversionDataItem[] = [
   { name: 'Bounced', value: 10 }
 ];
 
-const weeklyPerformanceData: WeeklyPerformanceDataItem[] = [
-  { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
-  { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
-  { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
-  { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 }
-];
+// const weeklyPerformanceData: WeeklyPerformanceDataItem[] = [
+//   { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Tue', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Wed', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Thu', IOS: 4000, Android: 3000, Web: 2500 },
+//   { day: 'Fri', IOS: 3500, Android: 3500, Web: 4000 },
+//   { day: 'Sat', IOS: 3000, Android: 4000, Web: 2000 },
+//   { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 }
+// ];
 
 const COLORS = ['#0088FE', '#FFBB28', '#FF8042'];
 const platformColors = {
