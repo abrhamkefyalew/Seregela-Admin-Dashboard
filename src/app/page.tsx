@@ -78,12 +78,12 @@ interface ConversionDataItem {
   value: number;
 }
 
-interface WeeklyPerformanceDataItem {
-  day: string;
-  IOS: number;
-  Android: number;
-  Web: number;
-}
+// interface WeeklyPerformanceDataItem {
+//   day: string;
+//   IOS: number;
+//   Android: number;
+//   Web: number;
+// }
 
 const conversionData: ConversionDataItem[] = [
   { name: 'Converted', value: 68 },
