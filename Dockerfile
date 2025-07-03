@@ -34,4 +34,12 @@ ENV PORT=${CONTAINER_PORT}
 EXPOSE ${CONTAINER_PORT}
 
 # Start using shell to expand $PORT
-CMD ["sh", "-c", "npx next start -p $PORT"]
+#
+#
+# PRODUCTION    -   -   - NO Volume Mount (NO Live Code Editing)
+# CMD ["sh", "-c", "npx next start -p $PORT"]
+#
+#
+# DEVELOPMENT   -   -   - VOLUME MOUNT (LIVE Code Editing) = [ - WORKING - ] - [ - USED - ]
+CMD ["sh", "-c", "npx next dev -p $PORT"]
+

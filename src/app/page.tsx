@@ -1,8 +1,14 @@
+// src/app/page.tsx
+
+
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Card from '@/components/Card';
-import { metrics } from '@/data/metrics';
+import { useRouter } from 'next/navigation';
+
+// import { metrics } from '@/data/metrics'; // REMOVE UNUSED IMPORT
+
 import {
   LineChart,
   Line,
@@ -23,12 +29,14 @@ import {
 
 
 const iconMap: Record<string, React.ReactNode> = {
+  'Target Revenue': '🎯',
   'Total Revenue': '💲',
   'Active Users': '👥',
   'Conversion Rate': '🎯',
-  'Orders': '🛒',
+  'Order Count': '🛒',
   'Page Views': '🌐',
   'Performance Score': '⚡',
+  'New Users': '🆕',
 };
 
 const tabList = [
@@ -135,53 +143,70 @@ const ChartWrapper = ({ children, chartKey }: { children: React.ReactNode, chart
 };
 
 // Simplified chart components without animation control
-const RevenueChart = () => (
+const RevenueChart = ({ data }: { data: any[] }) => (
   <ResponsiveContainer width="100%" height="100%">
-    <LineChart data={revenueData}>
+    <LineChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="month" />
+      <XAxis 
+        dataKey="month" 
+        tick={{ fontSize: 12 }} 
+      />
       <YAxis />
       <Tooltip />
-      <Line 
-        type="monotone" 
-        dataKey="value" 
-        stroke="#3b82f6" 
-        dot 
+      <Legend />
+      <Line
+        type="monotone"
+        dataKey="value"
+        name="Revenue"
+        stroke="#3b82f6"
+        dot
         animationDuration={1500}
+      />
+      <Line
+        type="monotone"
+        dataKey="target"
+        name="Target"
+        stroke="#f87171"
+        strokeDasharray="5 5"
+        dot={false}
       />
     </LineChart>
   </ResponsiveContainer>
 );
 
-const TrafficChart = () => (
+const TrafficChart = ({ data }: { data: any[] }) => (
   <ResponsiveContainer width="100%" height="100%">
-    <AreaChart data={trafficData}>
+    <AreaChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="day" />
+      <XAxis 
+        dataKey="day" 
+        tick={{ fontSize: 12 }} 
+      />
       <YAxis />
       <Tooltip />
-      <Area 
-        type="monotone" 
-        dataKey="IOS" 
-        stackId="1" 
-        stroke="#f97316" 
-        fill="#fcd34d" 
+      <Legend />
+      <Area
+        type="monotone"
+        dataKey="IOS"
+        stackId="1"
+        stroke="#f97316"
+        fill="#fcd34d"
         animationDuration={1500}
       />
-      <Area 
-        type="monotone" 
-        dataKey="Android" 
-        stackId="1" 
-        stroke="#10b981" 
-        fill="#6ee7b7" 
+      <Area
+        type="monotone"
+        dataKey="Android"
+        stackId="1"
+        stroke="#10b981"
+        fill="#6ee7b7"
         animationDuration={1500}
       />
-      <Area 
-        type="monotone" 
-        dataKey="Web" 
-        stackId="1" 
-        stroke="#3b82f6" 
-        fill="#93c5fd" 
+      <Area
+        type="monotone"
+        dataKey="Web"
+        stackId="1"
+        stroke="#3b82f6"
+        fill="#93c5fd"
         animationDuration={1500}
       />
     </AreaChart>
@@ -224,14 +249,17 @@ const ConversionChart = () => (
   </ResponsiveContainer>
 );
 
-const PerformanceChart = () => (
+const PerformanceChart = ({ data }: { data: any[] }) => (
   <ResponsiveContainer width="100%" height="100%">
     <BarChart
-      data={weeklyPerformanceData}
+      data={data}
       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="day" />
+      <XAxis 
+        dataKey="month" 
+        tick={{ fontSize: 12 }} 
+      />
       <YAxis />
       <Tooltip />
       <Legend />
@@ -257,8 +285,156 @@ const PerformanceChart = () => (
   </ResponsiveContainer>
 );
 
+
+// Inside page.tsx (Option 1)
+interface Metric {
+  label: string;
+  value: number;
+  change: number;
+  unit?: string;
+  lastMonthValue?: number;
+  lastMonthRange?: string; // formatted as (e.g., "Jul 1 – Jul 31")
+}
+
+
 export default function Home() {
+
+  // 1. First state declarations
   const [activeTab, setActiveTab] = useState('Overview');
+  
+  // Replace the any[] with Metric[]
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const router = useRouter();
+
+
+  // CHARTS (define these two new states)
+  const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
+  const [trafficChartData, setTrafficChartData] = useState<any[]>([]);
+  const [performanceChartData, setPerformanceChartData] = useState<any[]>([]);
+  
+
+
+  // 2. Then callback functions
+  const fetchDashboardData = useCallback(async (token: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-count-one`, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error('Fetch failed');
+      const response = await res.json();
+      const data = response.data;
+
+      const formatDateRange = (start: string, end: string) => {
+        const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+        const startDate = new Date(start).toLocaleDateString(undefined, options);
+        const endDate = new Date(end).toLocaleDateString(undefined, options);
+        return `(${startDate} – ${endDate})`;
+      };
+
+      const lastMonthRange = formatDateRange(data.total_revenue?.start_date, data.total_revenue?.end_date);
+
+      const formattedMetrics: Metric[] = [
+        {
+          label: 'Target Revenue',
+          value: parseFloat(data.target_revenue.replace(/,/g, '')) || 0,
+          change: 0,
+          unit: 'Br',
+        },
+        {
+          label: 'Total Revenue',
+          value: data.total_revenue?.this_month ?? 0,
+          change: data.total_revenue?.percentage_change ?? 0,
+          lastMonthValue: data.total_revenue?.last_month,
+          lastMonthRange,
+          unit: 'Br',
+        },
+        {
+          label: 'Active Users',
+          value: data.active_users?.this_month ?? 0,
+          change: data.active_users?.percentage_change ?? 0,
+          lastMonthValue: data.active_users?.last_month,
+          lastMonthRange,
+        },
+        {
+          label: 'Order Count',
+          value: data.order_count?.this_month ?? 0,
+          change: data.order_count?.percentage_change ?? 0,
+          lastMonthValue: data.order_count?.last_month,
+          lastMonthRange,
+        },
+        {
+          label: 'Page Views',
+          value: data.page_views?.this_month ?? 0,
+          change: data.page_views?.percentage_change ?? 0,
+          lastMonthValue: data.page_views?.last_month,
+          lastMonthRange,
+        },
+        {
+          label: 'New Users',
+          value: data.new_users_of_this_month.this_month ?? 0,
+          change: data.new_users_of_this_month?.percentage_change ?? 0,
+          lastMonthValue: data.new_users_of_this_month?.last_month,
+          lastMonthRange,
+        }
+      ];
+
+      setMetrics(formattedMetrics);
+
+
+      
+
+
+      // 1. Parse revenue trend for chart
+      const trend = data.monthly_revenue_trend.map((item: any) => ({
+        month: item.label,
+        value: item.total,
+        target: parseFloat(data.target_revenue.replace(/,/g, '')) || 0, // same target for all months
+      }));
+
+      // 2. Parse traffic sources for last 7 days
+      const traffic = data.platform_breakdown_of_the_last_seven_days.map((item: any) => ({
+        day: item.date,
+        IOS: item.apple ?? item.ios ?? 0, // fallback to 'apple' if 'ios' is missing
+        Android: item.android ?? 0,
+        Web: item.web ?? 0,
+      }));
+
+      // 3. Parse platform performance for last 12 months
+      const performance = data.platform_breakdown_of_the_last_twelve_months.map((item: any) => ({
+        month: item.label,
+        IOS: item.apple ?? item.ios ?? 0, 
+        Android: item.android ?? 0,
+        Web: item.web ?? 0,
+      }));
+
+
+      setRevenueChartData(trend);
+      setTrafficChartData(traffic);
+      setPerformanceChartData(performance);
+
+
+
+    } catch (err) {
+      console.error(err);
+      router.push('/login');
+    }
+  }, [router]);
+
+
+  // 3. Then effects
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.warn('No token found in localStorage');
+      router.push('/login');
+    } else {
+      fetchDashboardData(token);
+    }
+  }, [fetchDashboardData, router]); // ← both are dependencies here
+
 
   return (
     <main className="min-h-screen bg-white flex justify-center p-4">
@@ -270,11 +446,20 @@ export default function Home() {
             <span className="bg-green-500 text-white px-2 py-1 rounded text-sm ml-2">Live</span>
           </h1>
           <div className="flex items-center gap-4">
-            <TimeDisplay />
-            <button className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow">
-              Export Report
-            </button>
-          </div>
+          <TimeDisplay />
+          <button className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow">
+            Export Report
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem('authToken');
+              router.push('/login');
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
         </header>
 
         <div className="p-6 rounded-b-3xl">
@@ -286,6 +471,7 @@ export default function Home() {
           </section>
 
           {/* Metrics grid */}
+          <h4 className="font-bold my-2 text-black">This Month Values</h4>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-6">
             {metrics.map((metric, i) => (
               <div
@@ -336,14 +522,14 @@ export default function Home() {
               <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Revenue vs Target</h3>
                 <ChartWrapper chartKey="revenue">
-                  <RevenueChart />
+                  <RevenueChart data={revenueChartData} />
                 </ChartWrapper>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Traffic Sources</h3>
                 <ChartWrapper chartKey="traffic">
-                  <TrafficChart />
+                  <TrafficChart data={trafficChartData} />
                 </ChartWrapper>
               </div>
             </div>
@@ -378,8 +564,8 @@ export default function Home() {
               <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Weekly Performance by Platform</h3>
                 <ChartWrapper chartKey="performance">
-                  <PerformanceChart />
-                </ChartWrapper>
+                <PerformanceChart data={performanceChartData} />
+              </ChartWrapper>
               </div>
             </div>
           )}
