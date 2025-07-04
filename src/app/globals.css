@@ -24,3 +24,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+
+
+
+/* DISABLING the DevTools "N" Icon does NOT work */
+/* Hide Next.js DevTools overlay forcefully - NOT working*/
+[data-nextjs-devtools],
+#__nextjs-devtools,
+[aria-label="Open Next.js DevTools"],
+[id^="__nextjs"],
+[class*="nextjs-devtools"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
