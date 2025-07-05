@@ -148,7 +148,7 @@ const nextConfig: NextConfig = {
     // // CHECK if it WORKED - refresh your browser
 
 
-    
+
 
 
     // 2.4. -> RESTART your server  -   -   -   - (if it does NOT work)
@@ -167,6 +167,16 @@ const nextConfig: NextConfig = {
     //                                                    //
     //                                                    // or if it does NOT work  = = = restart, remove and recreate, build with NO CACHE, based on your need
     //        
+    //
+    //
+
+
+    // 2.5. in your code do NOT throw Error
+    //          //
+    //          do NOT = throw new Error('Fetch failed');
+    //          do ONLY console LOG it (console.log  or  console.error)
+    //
+    //
     //
     /////////////////////////// end Disable DevTools UI Overlay (REMOVEs the 'N' icon) from the left bottom of the screen - - - - - - STEP 2 - - - - - - - - - [ - WORKING - ] - [ - USED - ] -   ///////////////////////////////////////////////
 

@@ -323,7 +323,24 @@ export default function Home() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error('Fetch failed');
+
+      // Handle unauthorized cases
+      if (res.status === 401 || res.status === 403) {
+        console.error('Unauthorized access - redirecting to login:', {
+          status: res.status,
+        });
+        router.push('/login');
+        return;
+      }
+
+      // Handle other non-successful responses
+      if (!res.ok) {
+        const errorBody = await res.text(); // Optional: parse response error body safely
+        console.error('Dashboard fetch failed:', res.status, errorBody);
+        router.push('/login');
+        return;
+      }
+      
       const response = await res.json();
       const data = response.data;
 
@@ -395,15 +412,15 @@ export default function Home() {
       }));
 
       // 2. Parse traffic sources for last 7 days
-      const traffic = data.platform_breakdown_of_the_last_seven_days.map((item: any) => ({
+      const traffic = data.traffic_breakdown_of_the_last_seven_days.map((item: any) => ({
         day: item.date,
         IOS: item.apple ?? item.ios ?? 0, // fallback to 'apple' if 'ios' is missing
         Android: item.android ?? 0,
         Web: item.web ?? 0,
       }));
 
-      // 3. Parse platform performance for last 12 months
-      const performance = data.platform_breakdown_of_the_last_twelve_months.map((item: any) => ({
+      // 3. Parse traffic sources for last 12 months
+      const performance = data.traffic_breakdown_of_the_last_twelve_months.map((item: any) => ({
         month: item.label,
         IOS: item.apple ?? item.ios ?? 0, 
         Android: item.android ?? 0,
@@ -427,13 +444,16 @@ export default function Home() {
   // 3. Then effects
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.warn('No token found in localStorage');
+
+    if (!token || typeof token !== 'string') {
+      console.warn('Invalid or missing token');
       router.push('/login');
-    } else {
-      fetchDashboardData(token);
+      return;
     }
-  }, [fetchDashboardData, router]); // ← both are dependencies here
+
+    fetchDashboardData(token);
+
+  }, [fetchDashboardData, router]); // <- both are dependencies here
 
 
   return (
