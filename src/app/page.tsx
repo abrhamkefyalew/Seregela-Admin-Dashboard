@@ -326,7 +326,7 @@ export default function Home() {
 
       // Handle unauthorized cases
       if (res.status === 401 || res.status === 403) {
-        console.error('Unauthorized access - redirecting to login:', {
+        console.warn('Unauthorized access - redirecting to login:', {
           status: res.status,
         });
         router.push('/login');
@@ -336,7 +336,8 @@ export default function Home() {
       // Handle other non-successful responses
       if (!res.ok) {
         const errorBody = await res.text(); // Optional: parse response error body safely
-        console.error('Dashboard fetch failed:', res.status, errorBody);
+        // console.log('Dashboard fetch failed:', res.status, errorBody);
+        console.warn('Dashboard fetch failed:', res.status, errorBody);
         router.push('/login');
         return;
       }
@@ -435,7 +436,7 @@ export default function Home() {
 
 
     } catch (err) {
-      console.error(err);
+      console.warn(err);
       router.push('/login');
     }
   }, [router]);

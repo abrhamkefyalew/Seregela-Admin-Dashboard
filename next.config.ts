@@ -171,11 +171,15 @@ const nextConfig: NextConfig = {
     //
 
 
-    // 2.5. in your code do NOT throw Error
-    //          //
-    //          do NOT = throw new Error('Fetch failed');
-    //          do ONLY console LOG it (console.log  or  console.error)
+    // 2.5.  > in your code do NOT throw Error
+    //              //
+    //              do NOT = throw new Error('Fetch failed');
     //
+    //       > in your code do NOT use console.error
+    //              // 
+    //              only use 
+    //                     - console.warn()      
+    //                     - console.log()
     //
     //
     /////////////////////////// end Disable DevTools UI Overlay (REMOVEs the 'N' icon) from the left bottom of the screen - - - - - - STEP 2 - - - - - - - - - [ - WORKING - ] - [ - USED - ] -   ///////////////////////////////////////////////
