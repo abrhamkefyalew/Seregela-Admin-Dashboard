@@ -101,11 +101,11 @@ const conversionData: ConversionDataItem[] = [
 //   { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 }
 // ];
 
-const COLORS = ['#0088FE', '#FFBB28', '#FF8042'];
+const COLORS = ['#00BC86', '#FF9900', '#FF2F30'];
 const platformColors = {
-  IOS: '#FF6384',
-  Android: '#36A2EB',
-  Web: '#FFCE56'
+  IOS: '#FF9900',
+  Android: '#00BA84',
+  Web: '#0082F3'
 };
 
 // Create a separate component for the time display
@@ -311,6 +311,7 @@ export default function Home() {
   const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
   const [trafficChartData, setTrafficChartData] = useState<any[]>([]);
   const [performanceChartData, setPerformanceChartData] = useState<any[]>([]);
+  const [conversionData, setConversionData] = useState<any[]>([]);
   
 
 
@@ -357,7 +358,7 @@ export default function Home() {
       const formattedMetrics: Metric[] = [
         {
           label: 'Target Revenue',
-          value: parseFloat(data.target_revenue.replace(/,/g, '')) || 0,
+          value: parseFloat(data.target_revenue?.description.replace(/,/g, '')) || 0,
           change: 0,
           unit: 'Br',
         },
@@ -409,7 +410,7 @@ export default function Home() {
       const trend = data.monthly_revenue_trend.map((item: any) => ({
         month: item.label,
         value: item.total,
-        target: parseFloat(data.target_revenue.replace(/,/g, '')) || 0, // same target for all months
+        target: parseFloat(data.target_revenue?.description.replace(/,/g, '')) || 0, // same target for all months
       }));
 
       // 2. Parse traffic sources for last 7 days
@@ -429,9 +430,18 @@ export default function Home() {
       }));
 
 
+      // 4. order status counts
+      const conversion = Object.entries(data.order_statuses).map(([key, value]) => ({
+        name: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), // e.g. "converted_orders" → "Converted Orders"
+        value: value,
+      }));
+
+
+
       setRevenueChartData(trend);
       setTrafficChartData(traffic);
       setPerformanceChartData(performance);
+      setConversionData(conversion);
 
 
 
@@ -457,6 +467,49 @@ export default function Home() {
   }, [fetchDashboardData, router]); // <- both are dependencies here
 
 
+
+  // refresh page // rerender page
+  const handleRefresh = () => {
+  const token = localStorage.getItem('authToken');
+  if (token && typeof token === 'string') {
+      fetchDashboardData(token);
+    } else {
+      router.push('/login');
+    }
+  };
+
+
+
+  const exportMetricsToCSV = () => {
+    const headers = ['Label', 'Value', 'Change', 'Last Month', 'Date Range', 'Unit'];
+    const rows = metrics.map(metric => [
+      metric.label,
+      metric.value,
+      metric.change,
+      metric.lastMonthValue ?? '',
+      metric.lastMonthRange ?? '',
+      metric.unit ?? '',
+    ]);
+
+    const csvContent =
+      [headers, ...rows]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'dashboard_report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+
+
   return (
     <main className="min-h-screen bg-white flex justify-center p-4">
       <div className="w-full max-w-[95vw] bg-[#EEF7FF] rounded-3xl">
@@ -467,10 +520,24 @@ export default function Home() {
             <span className="bg-green-500 text-white px-2 py-1 rounded text-sm ml-2">Live</span>
           </h1>
           <div className="flex items-center gap-4">
+
           <TimeDisplay />
-          <button className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow">
+
+          <button
+            onClick={handleRefresh}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+          >
+            Refresh Data
+          </button>          
+
+          <button
+            onClick={exportMetricsToCSV}
+            className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow"
+          >
             Export Report
           </button>
+
+
           <button
             onClick={() => {
               localStorage.removeItem('authToken');
@@ -573,7 +640,7 @@ export default function Home() {
                             style={{ backgroundColor: COLORS[index % COLORS.length] }}
                           />
                           <span className="text-xs text-gray-600">
-                            {`${item.name}: ${item.value}%`}
+                            {`${item.name}: ${item.value}`}
                           </span>
                         </div>
                       ))}
