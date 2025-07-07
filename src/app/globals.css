@@ -43,3 +43,16 @@ body {
   position: absolute !important;
   left: -9999px !important;
 }
+
+
+
+/* Optional: Simplify layout during export */
+.pdf-exporting canvas,
+.pdf-exporting .recharts-wrapper {
+  display: none !important;
+}
+
+.pdf-exporting {
+  background: white !important;
+  box-shadow: none !important;
+}

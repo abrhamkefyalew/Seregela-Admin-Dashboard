@@ -1,10 +1,32 @@
-// src/app/page.tsx
+// srcapp/dateFilter/page.tsx
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export default function DateFilterPage() {
+//   return (
+//     <div>
+//       <h1>Date Filter Page</h1>
+//       <p>This is a sample page for date filtering.</p>
+//     </div>
+//   );
+// }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 
 
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Card from '@/components/Card';
+import Card from '@/components/CardFiltered';
 import { useRouter } from 'next/navigation';
 
 // import { metrics } from '@/data/metrics'; // REMOVE UNUSED IMPORT
@@ -26,6 +48,7 @@ import {
   Bar,
   Legend
 } from 'recharts';
+
 
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -101,7 +124,7 @@ const conversionData: ConversionDataItem[] = [
 //   { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 }
 // ];
 
-const COLORS = ['#00BC86', '#FF9900', '#FF2F30'];
+const COLORS = ['#00BC86', '#FF9900', '#FF2F30', '#FFFFFF', '#FFFFFF'];
 const platformColors = {
   IOS: '#FF9900',
   Android: '#00BA84',
@@ -142,76 +165,9 @@ const ChartWrapper = ({ children, chartKey }: { children: React.ReactNode, chart
   );
 };
 
-// Simplified chart components without animation control
-const RevenueChart = ({ data }: { data: any[] }) => (
-  <ResponsiveContainer width="100%" height="100%">
-    <LineChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis 
-        dataKey="month" 
-        tick={{ fontSize: 12 }} 
-      />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Line
-        type="monotone"
-        dataKey="value"
-        name="Revenue"
-        stroke="#3b82f6"
-        dot
-        animationDuration={1500}
-      />
-      <Line
-        type="monotone"
-        dataKey="target"
-        name="Target"
-        stroke="#f87171"
-        strokeDasharray="5 5"
-        dot={false}
-      />
-    </LineChart>
-  </ResponsiveContainer>
-);
 
-const TrafficChart = ({ data }: { data: any[] }) => (
-  <ResponsiveContainer width="100%" height="100%">
-    <AreaChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis 
-        dataKey="day" 
-        tick={{ fontSize: 12 }} 
-      />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Area
-        type="monotone"
-        dataKey="IOS"
-        stackId="1"
-        stroke="#f97316"
-        fill="#fcd34d"
-        animationDuration={1500}
-      />
-      <Area
-        type="monotone"
-        dataKey="Android"
-        stackId="1"
-        stroke="#10b981"
-        fill="#6ee7b7"
-        animationDuration={1500}
-      />
-      <Area
-        type="monotone"
-        dataKey="Web"
-        stackId="1"
-        stroke="#3b82f6"
-        fill="#93c5fd"
-        animationDuration={1500}
-      />
-    </AreaChart>
-  </ResponsiveContainer>
-);
+
+
 
 const ConversionChart = () => (
   <ResponsiveContainer width="100%" height="100%">
@@ -249,41 +205,7 @@ const ConversionChart = () => (
   </ResponsiveContainer>
 );
 
-const PerformanceChart = ({ data }: { data: any[] }) => (
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart
-      data={data}
-      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis 
-        dataKey="month" 
-        tick={{ fontSize: 12 }} 
-      />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Bar 
-        dataKey="IOS" 
-        fill={platformColors.IOS} 
-        name="iOS" 
-        animationDuration={1500}
-      />
-      <Bar 
-        dataKey="Android" 
-        fill={platformColors.Android} 
-        name="Android" 
-        animationDuration={1500}
-      />
-      <Bar 
-        dataKey="Web" 
-        fill={platformColors.Web} 
-        name="Web" 
-        animationDuration={1500}
-      />
-    </BarChart>
-  </ResponsiveContainer>
-);
+
 
 
 // Inside page.tsx (Option 1)
@@ -314,23 +236,37 @@ export default function Home() {
 
 
   // CHARTS (define these two new states)
-  const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
-  const [trafficChartData, setTrafficChartData] = useState<any[]>([]);
-  const [performanceChartData, setPerformanceChartData] = useState<any[]>([]);
+//   const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
+//   const [trafficChartData, setTrafficChartData] = useState<any[]>([]);
+//   const [performanceChartData, setPerformanceChartData] = useState<any[]>([]);
   const [conversionData, setConversionData] = useState<any[]>([]);
   
+  const [startDate, setStartDate] = useState<string | undefined>();
+  const [endDate, setEndDate] = useState<string | undefined>();
   
 
 
   // 2. Then callback functions
-  const fetchDashboardData = useCallback(async (token: string) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-count-one`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const fetchDashboardData = useCallback(
+    async (token: string, startDate?: string, endDate?: string) => {
+        try {
+        let url = `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-count-with-date-filter`;
+
+        // Only include both dates if both are provided
+        if (startDate && endDate) {
+            const params = new URLSearchParams({
+                start_date: startDate,
+                end_date: endDate,
+            });
+            url += `?${params.toString()}`;
+        }
+
+        const res = await fetch(url, {
+            headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+            },
+        });
 
       // Handle unauthorized cases
       if (res.status === 401 || res.status === 403) {
@@ -346,7 +282,7 @@ export default function Home() {
         const errorBody = await res.text(); // Optional: parse response error body safely
         // console.log('Dashboard fetch failed:', res.status, errorBody);
         console.warn('Dashboard fetch failed:', res.status, errorBody);
-        router.push('/login');
+        // router.push('/login');
         return;
       }
       
@@ -413,28 +349,28 @@ export default function Home() {
       
 
 
-      // 1. Parse revenue trend for chart
-      const trend = data.monthly_revenue_trend.map((item: any) => ({
-        month: item.label,
-        value: item.total,
-        target: parseFloat(data.target_revenue?.description.replace(/,/g, '')) || 0, // same target for all months
-      }));
+    //   // 1. Parse revenue trend for chart
+    //   const trend = data.monthly_revenue_trend.map((item: any) => ({
+    //     month: item.label,
+    //     value: item.total,
+    //     target: parseFloat(data.target_revenue?.description.replace(/,/g, '')) || 0, // same target for all months
+    //   }));
 
-      // 2. Parse traffic sources for last 7 days
-      const traffic = data.traffic_breakdown_of_the_last_seven_days.map((item: any) => ({
-        day: item.date,
-        IOS: item.apple ?? item.ios ?? 0, // fallback to 'apple' if 'ios' is missing
-        Android: item.android ?? 0,
-        Web: item.web ?? 0,
-      }));
+    //   // 2. Parse traffic sources for last 7 days
+    //   const traffic = data.traffic_breakdown_of_the_last_seven_days.map((item: any) => ({
+    //     day: item.date,
+    //     IOS: item.apple ?? item.ios ?? 0, // fallback to 'apple' if 'ios' is missing
+    //     Android: item.android ?? 0,
+    //     Web: item.web ?? 0,
+    //   }));
 
-      // 3. Parse traffic sources for last 12 months
-      const performance = data.traffic_breakdown_of_the_last_twelve_months.map((item: any) => ({
-        month: item.label,
-        IOS: item.apple ?? item.ios ?? 0, 
-        Android: item.android ?? 0,
-        Web: item.web ?? 0,
-      }));
+    //   // 3. Parse traffic sources for last 12 months
+    //   const performance = data.traffic_breakdown_of_the_last_twelve_months.map((item: any) => ({
+    //     month: item.label,
+    //     IOS: item.apple ?? item.ios ?? 0, 
+    //     Android: item.android ?? 0,
+    //     Web: item.web ?? 0,
+    //   }));
 
 
       // 4. order status counts
@@ -445,9 +381,9 @@ export default function Home() {
 
 
 
-      setRevenueChartData(trend);
-      setTrafficChartData(traffic);
-      setPerformanceChartData(performance);
+    //   setRevenueChartData(trend);
+    //   setTrafficChartData(traffic);
+    //   setPerformanceChartData(performance);
       setConversionData(conversion);
 
 
@@ -469,11 +405,20 @@ export default function Home() {
       return;
     }
 
-    fetchDashboardData(token);
+    // Only pass dates if both are set
+    if (startDate && endDate) {
+        fetchDashboardData(token, /*startDate, endDate */ );
+    } else {
+        fetchDashboardData(token);
+    }
 
-  }, [fetchDashboardData, router]); // <- both are dependencies here
+  }, [fetchDashboardData, router, /*startDate, endDate*/]); // <- if dates are uncommented - fetches each time a date is selected // i.e. without us clicking apply filter
 
 
+
+
+
+  
 
   // refresh page // rerender page
   const handleRefresh = () => {
@@ -580,8 +525,60 @@ export default function Home() {
             </p>
           </section>
 
+
+
+            <div className="flex items-end gap-2">
+                <div className="flex flex-col">
+                    <label htmlFor="start-date" className="text-xs text-gray-600 mb-1">Start Date</label>
+                    <input
+                    id="start-date"
+                    type="date"
+                    value={startDate || ''}
+                    onChange={(e) => setStartDate(e.target.value || undefined)}
+                    className="border rounded px-2 py-1 text-sm text-black"
+                    />
+                </div>
+
+                <div className="flex flex-col">
+                    <label htmlFor="end-date" className="text-xs text-gray-600 mb-1">End Date</label>
+                    <input
+                    id="end-date"
+                    type="date"
+                    value={endDate || ''}
+                    onChange={(e) => setEndDate(e.target.value || undefined)}
+                    className="border rounded px-2 py-1 text-sm text-black"
+                    />
+                </div>
+
+                <button
+                    onClick={() => {
+                    const token = localStorage.getItem('authToken');
+                    if (!token || typeof token !== 'string') {
+                        router.push('/login');
+                        return;
+                    }
+
+                    if ((startDate && !endDate) || (!startDate && endDate)) {
+                        alert('Please set both Start and End dates');
+                        return;
+                    }
+
+                    fetchDashboardData(token, startDate, endDate);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow"
+                >
+                    Apply Filter
+                </button>
+            </div>
+
+
+
+
+        
+
+
           {/* Metrics grid */}
-          <h4 className="font-bold my-2 text-black">This Month Values</h4>
+          
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-6">
             {metrics.map((metric, i) => (
               <div
@@ -629,7 +626,7 @@ export default function Home() {
           {/* Charts */}
           {activeTab === 'Overview' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-              <div className="bg-white rounded-xl shadow-sm p-4">
+              {/* <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Revenue vs Target</h3>
                 <ChartWrapper chartKey="revenue">
                   <RevenueChart data={revenueChartData} />
@@ -641,7 +638,7 @@ export default function Home() {
                 <ChartWrapper chartKey="traffic">
                   <TrafficChart data={trafficChartData} />
                 </ChartWrapper>
-              </div>
+              </div> */}
             </div>
           )}
 
@@ -671,12 +668,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm p-4">
+              {/* <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Weekly Performance by Platform</h3>
                 <ChartWrapper chartKey="performance">
                 <PerformanceChart data={performanceChartData} />
               </ChartWrapper>
-              </div>
+              </div> */}
             </div>
           )}
         </div>
