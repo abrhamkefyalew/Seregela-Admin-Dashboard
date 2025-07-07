@@ -1,4 +1,4 @@
-// srcapp/dateFilter/page.tsx
+// src/app/dateFilter/page.tsx
 
 
 
@@ -219,7 +219,7 @@ interface Metric {
 }
 
 
-export default function Home() {
+export default function DateFilter() {
 
   // 1. First state declarations
   const [activeTab, setActiveTab] = useState('Overview');
@@ -229,8 +229,8 @@ export default function Home() {
   const router = useRouter();
 
 
-  const handleGoToDateFilter = () => {
-    router.push('/dateFilter');
+  const handleGoToMainDashboard = () => {
+    router.push('/');
   };
 
 
@@ -243,12 +243,17 @@ export default function Home() {
   
   const [startDate, setStartDate] = useState<string | undefined>();
   const [endDate, setEndDate] = useState<string | undefined>();
-  
+  // FOR LOADING STATE
+  const [loading, setLoading] = useState(false);
 
 
   // 2. Then callback functions
   const fetchDashboardData = useCallback(
     async (token: string, startDate?: string, endDate?: string) => {
+
+        // FOR LOADING STATE
+        setLoading(true); // Start loading
+
         try {
         let url = `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-count-with-date-filter`;
 
@@ -391,6 +396,10 @@ export default function Home() {
     } catch (err) {
       console.warn(err);
       router.push('/login');
+    } finally {
+     
+      // FOR LOADING STATE
+      setLoading(false); // Stop loading in all cases
     }
   }, [router]);
 
@@ -575,12 +584,49 @@ const [newRevenueTarget, setNewRevenueTarget] = useState('');
 
           <TimeDisplay />
 
-          <button
-            onClick={handleRefresh}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-          >
-            Refresh Data
-          </button>          
+            <button
+                onClick={handleRefresh}
+                disabled={loading} // FOR LOADING STATE
+                className={`px-4 py-2 rounded-md transition text-white ${
+                    loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                }`}
+                >
+
+                {/* // FOR LOADING STATE */}
+                {/* NORMAL LOADING */}
+                {/* {loading ? 'Refreshing...' : 'Refresh Data'} */}
+
+
+                {/* // FOR LOADING STATE */}
+                {/* LOADING USING SPINNER */}
+                {loading ? (
+                    <span className="flex items-center gap-2">
+                    <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                        />
+                        <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
+                    </svg>
+                    Refreshing...
+                    </span>
+                ) : (
+                    'Refresh Data'
+                )}
+
+            </button>          
 
           {/* <button
             onClick={exportMetricsToCSV}
@@ -592,11 +638,11 @@ const [newRevenueTarget, setNewRevenueTarget] = useState('');
 
           <div className="p-8">
             <button
-              onClick={handleGoToDateFilter}
+              onClick={handleGoToMainDashboard}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
             >
               <span role="img" aria-label="calendar">📅</span>
-              More
+              Main Dashboard
             </button>
           </div>
 
@@ -648,22 +694,27 @@ const [newRevenueTarget, setNewRevenueTarget] = useState('');
 
                 <button
                     onClick={() => {
-                    const token = localStorage.getItem('authToken');
-                    if (!token || typeof token !== 'string') {
+                        const token = localStorage.getItem('authToken');
+                        if (!token || typeof token !== 'string') {
                         router.push('/login');
                         return;
-                    }
+                        }
 
-                    if ((startDate && !endDate) || (!startDate && endDate)) {
+                        if ((startDate && !endDate) || (!startDate && endDate)) {
                         alert('Please set both Start and End dates');
                         return;
-                    }
+                        }
 
-                    fetchDashboardData(token, startDate, endDate);
+                        fetchDashboardData(token, startDate, endDate); // setLoading is already handled inside
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm shadow"
-                >
-                    Apply Filter
+
+                    disabled={loading} // FOR LOADING STATE
+                    className={`${
+                        loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white px-4 py-2 rounded-lg text-sm shadow`}
+                    >
+                    {/* // FOR LOADING STATE */}
+                    {loading ? 'Loading...' : 'Apply Filter'} 
                 </button>
             </div>
 
