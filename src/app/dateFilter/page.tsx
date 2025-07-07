@@ -395,6 +395,102 @@ export default function Home() {
   }, [router]);
 
 
+
+//   const updateTargetRevenue = async (newDescription: string) => {
+//     const token = localStorage.getItem('authToken');
+
+//     if (!token || typeof token !== 'string') {
+//         alert('Authentication token missing');
+//         return;
+//     }
+
+//     try {
+//         const formData = new FormData();
+//         formData.append('_method', 'put');
+//         formData.append('description', newDescription);
+
+//         const response = await fetch(
+//         `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/constants/1`,
+//         {
+//             method: 'POST', // Emulate PUT via POST
+//             headers: {
+//             Accept: 'application/json',
+//             Authorization: `Bearer ${token}`,
+//             },
+//             body: formData,
+//         }
+//         );
+
+//         if (!response.ok) {
+//         const errorData = await response.json();
+//         console.warn('Failed to update target revenue:', errorData);
+//         alert('Failed to update target revenue.');
+//         return;
+//         }
+
+//         const result = await response.json();
+//         console.log('Update successful:', result);
+//         alert('Target revenue updated successfully!');
+//     } catch (error) {
+//         console.warn('Error updating target revenue:', error);
+//         alert('Something went wrong while updating.');
+//     }
+//   };
+
+
+
+
+
+const [newRevenueTarget, setNewRevenueTarget] = useState('');
+
+    const handleUpdateRevenueTarget = async () => {
+    const token = localStorage.getItem('authToken');
+
+    if (!token || typeof token !== 'string') {
+        alert('Authentication token missing');
+        return;
+    }
+
+    if (!newRevenueTarget.trim()) {
+        alert('Please enter a revenue target');
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('_method', 'put');
+        formData.append('description', newRevenueTarget);
+
+        const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/v1/constants/12`,
+        {
+            method: 'POST',
+            headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        }
+        );
+
+        if (!response.ok) {
+        const errorData = await response.json();
+        console.warn('Failed:', errorData);
+        // alert('Failed to update target revenue');
+        return;
+        }
+
+        alert('Target revenue updated successfully!');
+        setNewRevenueTarget('');
+    } catch (error) {
+        console.warn('Error updating revenue target:', error);
+        alert('Something went wrong.');
+    }
+};
+
+
+
+
   // 3. Then effects
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -573,6 +669,77 @@ export default function Home() {
 
 
 
+            {/* <button
+                onClick={() => {
+                    const newAmount = prompt('Enter new revenue amount (e.g. 700,000):');
+                    if (newAmount) {
+                    updateTargetRevenue(newAmount);
+                    }
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                Update Revenue Target
+            </button> */}
+
+
+            <div className="bg-white rounded-xl shadow-md p-6 mt-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Update Revenue Target</h3>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    pattern="\d*"
+                    value={newRevenueTarget}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        // Only update if it's empty or matches digits
+                        if (value === '' || /^\d+$/.test(value)) {
+                        setNewRevenueTarget(value);
+                        }
+                    }}
+                    placeholder="Enter new target revenue"
+                    className="border border-gray-300 rounded px-3 py-2 w-full text-black"
+                    />
+
+                    <button
+                    onClick={handleUpdateRevenueTarget}
+                    className="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition"
+                    >
+                    Update
+                    </button>
+                </div>
+            </div>
+
+
+            {/* <div className="bg-white p-4 rounded shadow-md max-w-md mt-6">
+                <h2 className="text-lg font-semibold mb-2">Update Target Revenue</h2>
+                <div className="flex items-center gap-2">
+                    <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    pattern="\d*"
+                    value={newRevenueTarget}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        // Only update if it's empty or matches digits
+                        if (value === '' || /^\d+$/.test(value)) {
+                        setNewRevenueTarget(value);
+                        }
+                    }}
+                    placeholder="Enter new target revenue"
+                    className="border border-gray-300 rounded px-3 py-2 w-full text-black"
+                    />
+                    <button
+                    onClick={handleUpdateRevenueTarget}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                    Update
+                    </button>
+                </div>
+            </div> */}
 
         
 
