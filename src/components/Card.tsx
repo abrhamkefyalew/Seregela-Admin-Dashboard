@@ -58,12 +58,25 @@ export default function Card({
         )}
       </div>
 
-      <div className="text-right text-xs text-gray-400 mt-2">
-        Current Month {thisMonthRange && <span className="text-blue-400 ml-1">{thisMonthRange}</span>}
-      </div>
-      <div className="text-right text-xs text-gray-400 mt-2">
-        Last Month {lastMonthRange && <span className="text-blue-400 ml-1">{lastMonthRange}</span>}
-      </div>
+      
+      
+
+      {label !== 'Target Revenue' ? (
+        <div>
+          <div className={'text-right text-xs text-gray-400 mt-2'}>
+            Current Month {thisMonthRange && <span className={'text-blue-400 ml-1'}>{thisMonthRange}</span>}
+          </div>
+          <div className={'text-right text-xs text-gray-400 mt-2'}>
+            Last Month {lastMonthRange && <span className={'text-blue-400 ml-1'}>{lastMonthRange}</span>}
+          </div>
+        </div>
+      ) : (
+        <p style={{ visibility: 'hidden', height: '1em', marginBottom: 0 }}>
+          Placeholder
+        </p>
+      )}
+
+
     </div>
   );
 }
