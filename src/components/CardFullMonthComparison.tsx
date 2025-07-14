@@ -1,4 +1,4 @@
-// src/components/Card.tsx
+// src/components/CardFullMonthComparison.tsx
 
 
 type CardProps = {
@@ -12,7 +12,7 @@ type CardProps = {
   // lastMonthRange?: string;
 };
 
-export default function Card({
+export default function CardFullMonthComparison({
   label,
   value,
   unit,

@@ -229,6 +229,7 @@ export default function DateFilter() {
   const router = useRouter();
 
 
+  // Route Change
   const handleGoToMainDashboard = () => {
     router.push('/');
   };
@@ -641,7 +642,7 @@ const [newRevenueTarget, setNewRevenueTarget] = useState('');
               onClick={handleGoToMainDashboard}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
             >
-              <span role="img" aria-label="calendar">📅</span>
+              <span role="img" aria-label="calendar"></span>
               Main Dashboard
             </button>
           </div>

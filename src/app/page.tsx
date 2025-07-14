@@ -308,8 +308,13 @@ export default function Home() {
   const router = useRouter();
 
 
+  // Route Change
   const handleGoToDateFilter = () => {
     router.push('/dateFilter');
+  };
+
+  const handleGoToFullMonthComparison = () => {
+    router.push('/fullMonthComparison');
   };
 
 
@@ -602,13 +607,24 @@ export default function Home() {
           </button> */}
 
 
-          <div className="p-8">
+          <div className="p-5">
             <button
               onClick={handleGoToDateFilter}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
             >
               <span role="img" aria-label="calendar">📅</span>
               More
+            </button>
+          </div>
+
+          <br></br>
+          <div className="p-5">
+            <button
+              onClick={handleGoToFullMonthComparison}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+            >
+              <span role="img" aria-label="calendar">📅</span>
+              LastMonth vs Current Month Till Today
             </button>
           </div>
 

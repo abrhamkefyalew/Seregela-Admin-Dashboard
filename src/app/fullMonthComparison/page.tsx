@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Card from '@/components/Card';
+import Card from '@/components/CardFullMonthComparison';
 import { useRouter } from 'next/navigation';
 
 // import { metrics } from '@/data/metrics'; // REMOVE UNUSED IMPORT
@@ -298,7 +298,7 @@ interface Metric {
 }
 
 
-export default function Home() {
+export default function FullMonthComparison() {
 
   // 1. First state declarations
   const [activeTab, setActiveTab] = useState('Overview');
@@ -307,6 +307,11 @@ export default function Home() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const router = useRouter();
 
+
+  // Route Change
+  const handleGoToMainDashboard = () => {
+    router.push('/');
+  };
 
   const handleGoToDateFilter = () => {
     router.push('/dateFilter');
@@ -602,13 +607,23 @@ export default function Home() {
           </button> */}
 
 
-          <div className="p-8">
+          <div className="p-4">
             <button
               onClick={handleGoToDateFilter}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
             >
               <span role="img" aria-label="calendar">📅</span>
               More
+            </button>
+          </div>
+
+          <div className="p-4">
+            <button
+              onClick={handleGoToMainDashboard}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+            >
+              <span role="img" aria-label="calendar"></span>
+              Main Dashboard
             </button>
           </div>
 
