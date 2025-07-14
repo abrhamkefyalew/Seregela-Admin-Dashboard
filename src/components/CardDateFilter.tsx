@@ -1,4 +1,4 @@
-// src/components/Card.tsx
+// src/components/CardDateFilter.tsx
 
 
 type CardProps = {
@@ -8,18 +8,16 @@ type CardProps = {
   change: number;
   icon: React.ReactNode;
   lastMonthValue?: number;
-  thisMonthRange?: string;
   lastMonthRange?: string;
 };
 
-export default function Card({
+export default function CardDateFilter({
   label,
   value,
   unit,
   change,
   icon,
   lastMonthValue,
-  thisMonthRange,
   lastMonthRange
 }: CardProps) {
   const isNegative = change < 0;
@@ -41,7 +39,6 @@ export default function Card({
 
         {label !== 'Target Revenue' ? (
           <p className={`text-sm ${changeColor}`}>
-            {iconArrow} {Math.abs(change)}% vs last month{' '}
             {lastMonthValue !== undefined && (
               <span className="ml-1 text-blue-400 text-xs">
                 (
@@ -58,12 +55,7 @@ export default function Card({
         )}
       </div>
 
-      <div className="text-right text-xs text-gray-400 mt-2">
-        Current Month {thisMonthRange && <span className="text-blue-400 ml-1">{thisMonthRange}</span>}
-      </div>
-      <div className="text-right text-xs text-gray-400 mt-2">
-        Last Month {lastMonthRange && <span className="text-blue-400 ml-1">{lastMonthRange}</span>}
-      </div>
+ 
     </div>
   );
 }

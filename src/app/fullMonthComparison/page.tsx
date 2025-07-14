@@ -294,7 +294,7 @@ interface Metric {
   unit?: string;
   lastMonthValue?: number;
   thisMonthRange?: string; // formatted as (e.g., "Jul 1 – Jul 31")
-  lastMonthRange?: string; // formatted as (e.g., "Jul 1 – Jul 31")
+  // lastMonthRange?: string; // formatted as (e.g., "Jul 1 – Jul 31")
 }
 
 
@@ -330,7 +330,7 @@ export default function Home() {
     setLoading(true); // Start loading
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-two-month-comparison-by-equal-date-range`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/v1/dashboards/dashboard-count-one`, {
         headers: {
           Accept: 'application/json',
           Authorization: `Bearer ${token}`,
@@ -379,7 +379,7 @@ export default function Home() {
           change: data.total_revenue?.percentage_change ?? 0,
           lastMonthValue: data.total_revenue?.last_month,
           thisMonthRange: formatDateRange(data.total_revenue?.start_date, data.total_revenue?.end_date),
-          lastMonthRange: formatDateRange(data.total_revenue?.last_month_start, data.total_revenue?.last_month_end),
+          // lastMonthRange: formatDateRange(data.total_revenue?.last_month_start, data.total_revenue?.last_month_end),
           unit: 'Br',
         },
         {
@@ -388,7 +388,7 @@ export default function Home() {
           change: data.active_users?.percentage_change ?? 0,
           lastMonthValue: data.active_users?.last_month,
           thisMonthRange: formatDateRange(data.active_users?.start_date, data.active_users?.end_date),
-          lastMonthRange: formatDateRange(data.active_users?.last_month_start, data.active_users?.last_month_end),
+          // lastMonthRange: formatDateRange(data.active_users?.last_month_start, data.active_users?.last_month_end),
         },
         {
           label: 'Order Count',
@@ -396,7 +396,7 @@ export default function Home() {
           change: data.order_count?.percentage_change ?? 0,
           lastMonthValue: data.order_count?.last_month,
           thisMonthRange: formatDateRange(data.order_count?.start_date, data.order_count?.end_date),
-          lastMonthRange: formatDateRange(data.order_count?.last_month_start, data.order_count?.last_month_end),
+          // lastMonthRange: formatDateRange(data.order_count?.last_month_start, data.order_count?.last_month_end),
         },
         {
           label: 'Page Views',
@@ -404,7 +404,7 @@ export default function Home() {
           change: data.page_views?.percentage_change ?? 0,
           lastMonthValue: data.page_views?.last_month,
           thisMonthRange: formatDateRange(data.page_views?.start_date, data.page_views?.end_date),
-          lastMonthRange: formatDateRange(data.page_views?.last_month_start, data.page_views?.last_month_end),
+          // lastMonthRange: formatDateRange(data.page_views?.last_month_start, data.page_views?.last_month_end),
         },
         {
           label: 'New Users',
@@ -412,7 +412,7 @@ export default function Home() {
           change: data.new_users_of_this_month?.percentage_change ?? 0,
           lastMonthValue: data.new_users_of_this_month?.last_month,
           thisMonthRange: formatDateRange(data.new_users_of_this_month?.start_date, data.new_users_of_this_month?.end_date),
-          lastMonthRange: formatDateRange(data.new_users_of_this_month?.last_month_start, data.new_users_of_this_month?.last_month_end),
+          // lastMonthRange: formatDateRange(data.new_users_of_this_month?.last_month_start, data.new_users_of_this_month?.last_month_end),
         }
       ];
 
@@ -511,7 +511,7 @@ export default function Home() {
       metric.change,
       metric.lastMonthValue ?? '',
       metric.thisMonthRange ?? '',
-      metric.lastMonthRange ?? '',
+      // metric.lastMonthRange ?? '',
       metric.unit ?? '',
     ]);
 

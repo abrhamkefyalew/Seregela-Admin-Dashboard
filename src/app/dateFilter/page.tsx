@@ -26,7 +26,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Card from '@/components/CardFiltered';
+import Card from '@/components/CardDateFilter';
 import { useRouter } from 'next/navigation';
 
 // import { metrics } from '@/data/metrics'; // REMOVE UNUSED IMPORT
