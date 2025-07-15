@@ -691,53 +691,56 @@ const [newRevenueTarget, setNewRevenueTarget] = useState('');
 
 
 
-            <div className="flex items-end gap-2">
-                <div className="flex flex-col">
-                    <label htmlFor="start-date" className="text-xs text-gray-600 mb-1">Start Date</label>
-                    <input
-                    id="start-date"
-                    type="date"
-                    value={startDate || ''}
-                    onChange={(e) => setStartDate(e.target.value || undefined)}
-                    className="border rounded px-2 py-1 text-sm text-black"
-                    />
-                </div>
+            <div className="flex flex-col sm:flex-row flex-wrap items-end gap-2 md:gap-3 w-full">
+              <div className="flex flex-col w-full sm:w-auto">
+                <label htmlFor="start-date" className="text-xs text-gray-600 mb-1">
+                  Start Date
+                </label>
+                <input
+                  id="start-date"
+                  type="date"
+                  value={startDate || ''}
+                  onChange={(e) => setStartDate(e.target.value || undefined)}
+                  className="border rounded px-2 py-1 text-sm text-black w-full sm:w-40"
+                />
+              </div>
 
-                <div className="flex flex-col">
-                    <label htmlFor="end-date" className="text-xs text-gray-600 mb-1">End Date</label>
-                    <input
-                    id="end-date"
-                    type="date"
-                    value={endDate || ''}
-                    onChange={(e) => setEndDate(e.target.value || undefined)}
-                    className="border rounded px-2 py-1 text-sm text-black"
-                    />
-                </div>
+              <div className="flex flex-col w-full sm:w-auto">
+                <label htmlFor="end-date" className="text-xs text-gray-600 mb-1">
+                  End Date
+                </label>
+                <input
+                  id="end-date"
+                  type="date"
+                  value={endDate || ''}
+                  onChange={(e) => setEndDate(e.target.value || undefined)}
+                  className="border rounded px-2 py-1 text-sm text-black w-full sm:w-40"
+                />
+              </div>
 
-                <button
-                    onClick={() => {
-                        const token = localStorage.getItem('authToken');
-                        if (!token || typeof token !== 'string') {
-                        router.push('/login');
-                        return;
-                        }
+              <button
+                onClick={() => {
+                  const token = localStorage.getItem('authToken');
+                  if (!token || typeof token !== 'string') {
+                    router.push('/login');
+                    return;
+                  }
 
-                        if ((startDate && !endDate) || (!startDate && endDate)) {
-                        alert('Please set both Start and End dates');
-                        return;
-                        }
+                  if ((startDate && !endDate) || (!startDate && endDate)) {
+                    alert('Please set both Start and End dates');
+                    return;
+                  }
 
-                        fetchDashboardData(token, startDate, endDate); // setLoading is already handled inside
-                    }}
-
-                    disabled={loading} // FOR LOADING STATE
-                    className={`${
-                        loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                    } text-white px-4 py-2 rounded-lg text-sm shadow`}
-                    >
-                    {/* // FOR LOADING STATE */}
-                    {loading ? 'Loading...' : 'Apply Filter'} 
-                </button>
+                  fetchDashboardData(token, startDate, endDate); // setLoading is already handled inside
+                }}
+                disabled={loading} // FOR LOADING STATE
+                className={`${
+                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                } text-white px-4 py-2 rounded-lg text-sm shadow w-full sm:w-auto`}
+              >
+                {/* // FOR LOADING STATE */}
+                {loading ? 'Loading...' : 'Apply Filter'}
+              </button>
             </div>
 
 

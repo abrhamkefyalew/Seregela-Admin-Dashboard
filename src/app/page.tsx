@@ -333,12 +333,22 @@ export default function Home() {
 
 
   // Route Change
-  const handleGoToDateFilter = () => {
-    router.push('/dateFilter');
+  const handleGoToDateFilter = async () => {
+    setNavigatingToDateFilter(true);
+    try {
+      await router.push('/dateFilter');
+    } finally {
+      setNavigatingToDateFilter(false);
+    }
   };
 
-  const handleGoToFullMonthComparison = () => {
-    router.push('/fullMonthComparison');
+  const handleGoToFullMonthComparison = async () => {
+    setNavigatingToFullMonth(true);
+    try {
+      await router.push('/fullMonthComparison');
+    } finally {
+      setNavigatingToFullMonth(false);
+    }
   };
 
 
@@ -350,6 +360,10 @@ export default function Home() {
   const [conversionData, setConversionData] = useState<any[]>([]);
   // FOR LOADING STATE
   const [loading, setLoading] = useState(false);  
+
+  //
+  const [navigatingToDateFilter, setNavigatingToDateFilter] = useState(false);
+  const [navigatingToFullMonth, setNavigatingToFullMonth] = useState(false);
   
 
 
@@ -636,18 +650,79 @@ export default function Home() {
 
               <button
                 onClick={handleGoToDateFilter}
-                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm"
+                disabled={navigatingToDateFilter}
+                className={`flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm ${
+                  navigatingToDateFilter ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
               >
-                <span role="img" aria-label="calendar">📅</span>
-                <span className="hidden sm:inline">More</span>
+                {navigatingToDateFilter ? (
+                  <span className="flex items-center gap-1">
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <span className="hidden sm:inline">Loading...</span>
+                  </span>
+                ) : (
+                  <>
+                    <span role="img" aria-label="calendar">📅</span>
+                    <span className="hidden sm:inline">More</span>
+                  </>
+                )}
               </button>
 
               <button
                 onClick={handleGoToFullMonthComparison}
-                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm whitespace-nowrap"
+                disabled={navigatingToFullMonth}
+                className={`flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm whitespace-nowrap ${
+                  navigatingToFullMonth ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
               >
-                <span className="hidden md:inline">Last Month Full vs Current Till Today</span>
-                <span className="md:hidden">Month Comp.</span>
+                {navigatingToFullMonth ? (
+                  <span className="flex items-center gap-1">
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <span className="hidden md:inline">Loading...</span>
+                    <span className="md:hidden">Loading...</span>
+                  </span>
+                ) : (
+                  <>
+                    <span className="hidden md:inline">Last Month Full vs Current Till Today</span>
+                    <span className="md:hidden">Month Comp.</span>
+                  </>
+                )}
               </button>
 
               <button
