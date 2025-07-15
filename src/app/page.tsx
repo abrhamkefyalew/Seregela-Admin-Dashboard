@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, startTransition } from 'react';
 import Card from '@/components/Card';
 import { useRouter } from 'next/navigation';
 
@@ -332,24 +332,7 @@ export default function Home() {
   const router = useRouter();
 
 
-  // Route Change
-  const handleGoToDateFilter = async () => {
-    setNavigatingToDateFilter(true);
-    try {
-      await router.push('/dateFilter');
-    } finally {
-      setNavigatingToDateFilter(false);
-    }
-  };
-
-  const handleGoToFullMonthComparison = async () => {
-    setNavigatingToFullMonth(true);
-    try {
-      await router.push('/fullMonthComparison');
-    } finally {
-      setNavigatingToFullMonth(false);
-    }
-  };
+  
 
 
 
@@ -364,6 +347,26 @@ export default function Home() {
   //
   const [navigatingToDateFilter, setNavigatingToDateFilter] = useState(false);
   const [navigatingToFullMonth, setNavigatingToFullMonth] = useState(false);
+
+
+
+  // Route Change
+  // Update your navigation handlers
+  const handleGoToDateFilter = () => {
+    setNavigatingToDateFilter(true);
+    startTransition(() => {
+      router.push('/dateFilter');
+      // The state will be reset when the component unmounts
+    });
+  };
+
+  const handleGoToFullMonthComparison = () => {
+    setNavigatingToFullMonth(true);
+    startTransition(() => {
+      router.push('/fullMonthComparison');
+      // The state will be reset when the component unmounts
+    });
+  };
   
 
 
