@@ -349,9 +349,7 @@ export default function Home() {
   const [navigatingToFullMonth, setNavigatingToFullMonth] = useState(false);
 
 
-
   // Route Change
-  // Update your navigation handlers
   const handleGoToDateFilter = () => {
     setNavigatingToDateFilter(true);
     startTransition(() => {

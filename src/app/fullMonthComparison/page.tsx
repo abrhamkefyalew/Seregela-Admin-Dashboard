@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, startTransition } from 'react';
 import Card from '@/components/CardFullMonthComparison';
 import { useRouter } from 'next/navigation';
 
@@ -338,16 +338,9 @@ export default function FullMonthComparison() {
   const router = useRouter();
 
 
-  // Route Change
-  const handleGoToMainDashboard = () => {
-    router.push('/');
-  };
+  
 
-  const handleGoToDateFilter = () => {
-    router.push('/dateFilter');
-  };
-
-
+ 
 
   // CHARTS (define these two new states)
   const [revenueChartData, setRevenueChartData] = useState<any[]>([]);
@@ -355,7 +348,31 @@ export default function FullMonthComparison() {
   const [performanceChartData, setPerformanceChartData] = useState<any[]>([]);
   const [conversionData, setConversionData] = useState<any[]>([]);
   // FOR LOADING STATE
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
+
+  //
+  const [navigatingToMainDashboard, setNavigatingToMainDashboard] = useState(false);
+  const [navigatingToDateFilter, setNavigatingToDateFilter] = useState(false);
+
+  
+  // Route Change
+  const handleGoToMainDashboard = () => {
+    setNavigatingToMainDashboard(true);
+    startTransition(() => {
+      router.push('/');
+      // The state will be reset when the component unmounts
+    });
+  };
+  
+  const handleGoToDateFilter = () => {
+    setNavigatingToDateFilter(true);
+    startTransition(() => {
+      router.push('/dateFilter');
+      // The state will be reset when the component unmounts
+    });
+  };
+
+  
   
 
 
@@ -637,21 +654,88 @@ export default function FullMonthComparison() {
               Export Report
             </button> */}
 
-            <button
-              onClick={handleGoToDateFilter}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm"
-            >
-              <span role="img" aria-label="calendar">📅</span>
-              More
-            </button>
-
+            
             <button
               onClick={handleGoToMainDashboard}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm"
+              disabled={navigatingToMainDashboard}
+              className={`flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm whitespace-nowrap ${
+                navigatingToMainDashboard ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
             >
-              <span role="img" aria-label="calendar"></span>
-              Main Dashboard
+              {navigatingToMainDashboard ? (
+                <span className="flex items-center gap-1">
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span className="hidden md:inline">Loading...</span>
+                  <span className="md:hidden">Loading...</span>
+                </span>
+              ) : (
+                <>
+                  <span className="hidden md:inline">Main Dashboard</span>
+                  <span className="md:hidden">Main Dashboard</span>
+                </>
+              )}
             </button>
+            
+            <button
+              onClick={handleGoToDateFilter}
+              disabled={navigatingToDateFilter}
+              className={`flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg shadow text-sm ${
+                navigatingToDateFilter ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
+            >
+              {navigatingToDateFilter ? (
+                <span className="flex items-center gap-1">
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">Loading...</span>
+                </span>
+              ) : (
+                <>
+                  <span role="img" aria-label="calendar">📅</span>
+                  <span className="hidden sm:inline">More</span>
+                </>
+              )}
+            </button>
+
+            
+
+
+
 
             <button
               onClick={() => {
