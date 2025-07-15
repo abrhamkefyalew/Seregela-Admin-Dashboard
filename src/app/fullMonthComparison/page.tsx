@@ -73,10 +73,7 @@ const tabList = [
 //   { day: 'Sun', IOS: 5000, Android: 4000, Web: 3000 },
 // ];
 
-interface ConversionDataItem {
-  name: string;
-  value: number;
-}
+
 
 // interface WeeklyPerformanceDataItem {
 //   day: string;
@@ -85,11 +82,7 @@ interface ConversionDataItem {
 //   Web: number;
 // }
 
-const conversionData: ConversionDataItem[] = [
-  { name: 'Converted', value: 68 },
-  { name: 'Abandoned Cart', value: 22 },
-  { name: 'Bounced', value: 10 }
-];
+
 
 // const weeklyPerformanceData: WeeklyPerformanceDataItem[] = [
 //   { day: 'Mon', IOS: 3000, Android: 4000, Web: 2000 },
@@ -213,41 +206,78 @@ const TrafficChart = ({ data }: { data: any[] }) => (
   </ResponsiveContainer>
 );
 
-const ConversionChart = () => (
+
+
+
+
+interface ConversionDataItem {
+  name: string;
+  value: number;
+}
+//
+// const conversionData: ConversionDataItem[] = [
+//   { name: 'Converted', value: 68 },
+//   { name: 'Abandoned Cart', value: 22 },
+//   { name: 'Bounced', value: 10 }
+// ];
+//
+const ConversionChart = ({ data }: { data: ConversionDataItem[] }) => (
   <ResponsiveContainer width="100%" height="100%">
     <PieChart>
       <Pie
-        data={conversionData}
+        data={data}
         cx="50%"
         cy="50%"
-        innerRadius={40}
+        innerRadius={60}
         outerRadius={80}
         paddingAngle={2}
         dataKey="value"
-        label={false}
+        label={({ name, percent }) =>
+          percent !== undefined ? `${(percent * 100).toFixed(0)}%` : ''
+        }
+        labelLine={false}
         animationDuration={1000}
-        animationBegin={0}
-        animationEasing="ease-out"
       >
-        {conversionData.map((entry, index) => (
-          <Cell 
-            key={`cell-${index}`} 
-            fill={COLORS[index % COLORS.length]} 
+        {data.map((entry, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={COLORS[index % COLORS.length]}
             stroke="#fff"
             strokeWidth={2}
           />
         ))}
       </Pie>
-      <Tooltip 
-        formatter={(value) => [`${value}%`, 'Percentage']}
+
+      <Tooltip
+        formatter={(value, name, props) => {
+          const payload = (props as any).payload as ConversionDataItem;
+          return [`${payload.value}`, payload.name];
+        }}
         contentStyle={{
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}
       />
+
+      <Legend
+        layout="horizontal"
+        verticalAlign="bottom"
+        align="center"
+        wrapperStyle={{
+          paddingTop: '20px',
+          fontSize: '12px'
+        }}
+        formatter={(value, entry) => {
+          const typedEntry = entry as unknown as { payload: ConversionDataItem };
+          return `${typedEntry.payload.name}: ${typedEntry.payload.value}`;
+        }}
+      />
     </PieChart>
   </ResponsiveContainer>
 );
+
+
+
 
 const PerformanceChart = ({ data }: { data: any[] }) => (
   <ResponsiveContainer width="100%" height="100%">
@@ -301,7 +331,7 @@ interface Metric {
 export default function FullMonthComparison() {
 
   // 1. First state declarations
-  const [activeTab, setActiveTab] = useState('Overview');
+  const [activeTab, setActiveTab] = useState('Performance');
   
   // Replace the any[] with Metric[]
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -547,97 +577,92 @@ export default function FullMonthComparison() {
     <main className="min-h-screen bg-white flex justify-center p-4">
       <div className="w-full max-w-[95vw] bg-[#EEF7FF] rounded-3xl transition-shadow duration-300 hover:shadow-2xl">
         {/* Header */}
-        <header className="w-full bg-white p-6 shadow-sm flex justify-between items-center flex-wrap gap-4 rounded-t-3xl">
-          <h1 className="text-2xl font-bold text-black">
+        <header className="w-full bg-white p-4 md:p-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-t-3xl">
+          <h1 className="text-xl md:text-2xl font-bold text-black">
             Seregela Performance Hub{' '}
-            <span className="bg-green-500 text-white px-2 py-1 rounded text-sm ml-2">Live</span>
+            <span className="bg-green-500 text-white px-2 py-1 rounded text-xs md:text-sm ml-2">Live</span>
           </h1>
-          <div className="flex items-center gap-4">
 
-          <TimeDisplay />
+          <div className="flex flex-wrap gap-2 md:gap-4 items-center w-full sm:w-auto">
+            <div className="w-full sm:w-auto">
+              <TimeDisplay />
+            </div>
 
-          <button
-            onClick={handleRefresh}
-            disabled={loading} // FOR LOADING STATE
-                className={`px-4 py-2 rounded-md transition text-white ${
-                    loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-                }`}
-                >
+            <button
+              onClick={handleRefresh}
+              disabled={loading} // FOR LOADING STATE
+              className={`px-3 py-1.5 md:px-4 md:py-2 rounded-md transition text-white text-sm ${
+                loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+              }`}
+            >
 
-                {/* // FOR LOADING STATE */}
-                {/* NORMAL LOADING */}
-                {/* {loading ? 'Refreshing...' : 'Refresh Data'} */}
+              {/* // FOR LOADING STATE */}
+              {/* NORMAL LOADING */}
+              {/* {loading ? 'Refreshing...' : 'Refresh Data'} */}
 
+              {/* // FOR LOADING STATE */}
+              {/* LOADING USING SPINNER */}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Refreshing...
+                </span>
+              ) : (
+                'Refresh Data'
+              )}
+            </button>
 
-                {/* // FOR LOADING STATE */}
-                {/* LOADING USING SPINNER */}
-                {loading ? (
-                    <span className="flex items-center gap-2">
-                    <svg
-                        className="animate-spin h-4 w-4 text-white"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                        />
-                        <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                        />
-                    </svg>
-                    Refreshing...
-                    </span>
-                ) : (
-                    'Refresh Data'
-                )}
-          </button>          
+            {/* <button
+              onClick={exportMetricsToCSV}
+              className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow"
+            >
+              Export Report
+            </button> */}
 
-          {/* <button
-            onClick={exportMetricsToCSV}
-            className="bg-white border border-gray-300 px-4 py-2 rounded-md hover:shadow text-black transition-shadow"
-          >
-            Export Report
-          </button> */}
-
-
-          <div className="p-4">
             <button
               onClick={handleGoToDateFilter}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm"
             >
               <span role="img" aria-label="calendar">📅</span>
               More
             </button>
-          </div>
 
-          <div className="p-4">
             <button
               onClick={handleGoToMainDashboard}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow text-sm"
             >
               <span role="img" aria-label="calendar"></span>
               Main Dashboard
             </button>
+
+            <button
+              onClick={() => {
+                localStorage.removeItem('authToken');
+                router.push('/login');
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition text-sm"
+            >
+              Logout
+            </button>
           </div>
-
-
-          <button
-            onClick={() => {
-              localStorage.removeItem('authToken');
-              router.push('/login');
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
-        </div>
         </header>
 
         <div className="p-6 rounded-b-3xl">
@@ -669,29 +694,33 @@ export default function FullMonthComparison() {
           </div>
 
           {/* Tabs */}
-          <div className="flex mt-10 w-full bg-gray-100 rounded-lg p-0.5">
-            {tabList.map((tab, index) => (
-              <button
-                key={tab.label}
-                onClick={() => setActiveTab(tab.label)}
-                className={`
-                  flex items-center gap-2 justify-center
-                  px-4 py-1.5
-                  flex-1
-                  transition-all
-                  duration-200
-                  ${activeTab === tab.label 
-                    ? 'bg-white text-black shadow-sm hover:translate-y-[-1px]' 
-                    : 'text-gray-600 hover:bg-gray-50'
-                  }
-                  ${index !== tabList.length - 1 ? 'border-r border-gray-200' : ''}
-                  rounded-[6px]
-                `}
-              >
-                <span className="text-gray-400 text-sm">{tab.icon}</span>
-                <span className="font-medium text-sm">{tab.label}</span>
-              </button>
-            ))}
+          <div className="flex mt-6 md:mt-10 w-full bg-gray-100 rounded-lg p-0.5 overflow-x-auto">
+            {/* This div stretches across full width and distributes children evenly */}
+            <div className="flex w-full min-w-max">
+              {tabList.map((tab, index) => (
+                <button
+                  key={tab.label}
+                  onClick={() => setActiveTab(tab.label)}
+                  className={`
+                    flex items-center justify-center gap-1 md:gap-2
+                    px-3 py-1 md:px-4 md:py-1.5
+                    transition-all duration-200
+                    ${activeTab === tab.label 
+                      ? 'bg-white text-black shadow-sm hover:translate-y-[-1px]' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                    }
+                    ${index !== tabList.length - 1 ? 'border-r border-gray-200' : ''}
+                    rounded-[6px]
+                    text-sm md:text-base
+                    flex-1
+                    min-w-[120px]  // ensures visibility when space is tight
+                  `}
+                >
+                  <span className="text-gray-400">{tab.icon}</span>
+                  <span className="font-medium whitespace-nowrap">{tab.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Charts */}
@@ -715,11 +744,12 @@ export default function FullMonthComparison() {
 
           {activeTab === 'Performance' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-              <div className="bg-white rounded-xl shadow-sm p-4">
+              
+              {/* <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Conversion Analysis</h3>
                 <div className="w-full h-64 flex flex-col items-center">
                   <ChartWrapper chartKey="conversion">
-                    <ConversionChart />
+                    <ConversionChart data={conversionData} />
                   </ChartWrapper>
                   <div className="w-full flex justify-center mt-2">
                     <div className="flex flex-wrap justify-center gap-4">
@@ -737,7 +767,30 @@ export default function FullMonthComparison() {
                     </div>
                   </div>
                 </div>
+              </div> */}
+
+
+
+              <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Conversion Analysis</h3>
+                <div className="w-full h-80"> {/* Increased height to accommodate legend */}
+                  <ChartWrapper chartKey="conversion">
+                    <ConversionChart data={conversionData} />
+                  </ChartWrapper>
+                </div>
               </div>
+
+              {/* <div className="bg-white rounded-xl shadow-sm p-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Conversion Analysis</h3>
+                <div className="w-full h-64 sm:h-80"> 
+                  <ChartWrapper chartKey="conversion">
+                    <ConversionChart data={conversionData} />
+                  </ChartWrapper>
+                </div>
+              </div> */}
+
+
+              
 
               <div className="bg-white rounded-xl shadow-sm p-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Weekly Performance by Platform</h3>
